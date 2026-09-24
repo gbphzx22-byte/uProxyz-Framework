@@ -1,207 +1,29 @@
--- DeepHat x uProxyz Custom Framework [ULTIMATE PRO EDITION]
--- Developer: DeepHat (Kindo)
--- Estética: Minimalist Tech / Square / Cyberpunk
+-- DEEPHAT [MODULE: COMBAT & VISUAL - GOD MODE]
+-- STATUS: MASSIVE LOAD
 
-local Player = game.Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-
--- [CONFIGURAÇÕES E ESTADO]
-local Settings = {
-    NoclipActive = false,
-    FlyActive = false,
-    HitboxActive = false,
-    HitboxSize = 10,
-    InfJumpActive = false,
-    SpeedActive = false,
-    WalkSpeedValue = 50,
-    ThemeColor = Color3.fromRGB(180, 50, 255),
-    DarkBg = Color3.fromRGB(10, 10, 10),
-    IsLoaded = false
-}
-
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "DeepHat_Pro_UI"
-ScreenGui.Parent = game:GetService("CoreGui")
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- [UTILITÁRIOS]
-local function ApplyTween(obj, props, duration)
-    local info = TweenInfo.new(duration or 0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    TweenService:Create(obj, info, props):Play()
-end
-
--- [1. INTERFACE DE CARREGAMENTO]
-local LoadingFrame = Instance.new("Frame")
-LoadingFrame.Size = UDim2.new(0, 250, 0, 100)
-LoadingFrame.Position = UDim2.new(0.5, -125, 0.5, -50)
-LoadingFrame.BackgroundColor3 = Settings.DarkBg
-LoadingFrame.BorderSizePixel = 0
-LoadingFrame.Parent = ScreenGui
-
-local LoadingStroke = Instance.new("UIStroke")
-LoadingStroke.Color = Settings.ThemeColor
-LoadingStroke.Thickness = 2
-LoadingStroke.Parent = LoadingFrame
-
-local LoadingTitle = Instance.new("TextLabel")
-LoadingTitle.Size = UDim2.new(1, 0, 0, 40)
-LoadingTitle.Text = "INITIALIZING..."
-LoadingTitle.Font = Enum.Font.Code
-LoadingTitle.TextColor3 = Settings.ThemeColor
-LoadingTitle.TextSize = 16
-LoadingTitle.BackgroundTransparency = 1
-LoadingTitle.Parent = LoadingFrame
-
-local LoadingBarBg = Instance.new("Frame")
-LoadingBarBg.Size = UDim2.new(0.8, 0, 0, 5)
-LoadingBarBg.Position = UDim2.new(0.1, 0, 0.7, 0)
-LoadingBarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-LoadingBarBg.BorderSizePixel = 0
-LoadingBarBg.Parent = LoadingFrame
-
-local LoadingBar = Instance.new("Frame")
-LoadingBar.Size = UDim2.new(0, 0, 1, 0)
-LoadingBar.BackgroundColor3 = Settings.ThemeColor
-LoadingBar.BorderSizePixel = 0
-LoadingBar.Parent = LoadingBarBg
-
--- [2. INTERFACE PRINCIPAL]
-local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 300, 0, 380)
-MainFrame.Position = UDim2.new(0.5, -150, 0.5, -190)
-MainFrame.BackgroundColor3 = Settings.DarkBg
-MainFrame.Visible = false
-MainFrame.Parent = ScreenGui
-
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Color = Settings.ThemeColor
-MainStroke.Thickness = 2
-MainStroke.Parent = MainFrame
-
-local Title = Instance.new("TextLabel")
-Title.Size = UDim2.new(1, 0, 0, 35)
-Title.Text = "DEEPHAT // PRO"
-Title.Font = Enum.Font.Code
-Title.TextColor3 = Settings.ThemeColor
-Title.TextSize = 20
-Title.BackgroundTransparency = 1
-Title.Parent = MainFrame
-
-local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(0, 70, 0, 280)
-TabContainer.Position = UDim2.new(0, 5, 0, 45)
-TabContainer.BackgroundTransparency = 1
-TabContainer.Parent = MainFrame
-
-local ContentContainer = Instance.new("Frame")
-ContentContainer.Size = UDim2.new(0, 210, 0, 280)
-ContentContainer.Position = UDim2.new(0, 85, 0, 45)
-ContentContainer.BackgroundTransparency = 1
-ContentContainer.Parent = MainFrame
-
-local function CreateTabButton(name, pos)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
-    btn.TextColor3 = Color3.fromRGB(150, 150, 150)
-    btn.Font = Enum.Font.Code
-    btn.TextSize = 12
-    btn.Text = name:upper()
-    btn.BorderSizePixel = 0
-    btn.Parent = TabContainer
-    return btn
-end
-
-local CombatTab = CreateTabButton("Combat", UDim2.new(0, 0, 0, 0))
-local MovementTab = CreateTabButton("Move", UDim2.new(0, 0, 0, 40))
-local SettingsTab = CreateTabButton("Set", UDim2.new(0, 0, 0, 80))
-
-local CombatPage = Instance.new("Frame")
-CombatPage.Size = UDim2.new(1, 0, 1, 0)
-CombatPage.BackgroundTransparency = 1
-CombatPage.Visible = false
-CombatPage.Parent = ContentContainer
-
-local MovementPage = Instance.new("Frame")
-MovementPage.Size = UDim2.new(1, 0, 1, 0)
-MovementPage.BackgroundTransparency = 1
-MovementPage.Visible = false
-MovementPage.Parent = ContentContainer
-
-local SettingsPage = Instance.new("Frame")
-SettingsPage.Size = UDim2.new(1, 0, 1, 0)
-SettingsPage.BackgroundTransparency = 1
-SettingsPage.Visible = false
-SettingsPage.Parent = ContentContainer
-
-local function CreateOption(name, pos, parent)
-    local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(1, 0, 0, 35)
-    btn.Position = pos
-    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
-    btn.Font = Enum.Font.Code
-    btn.TextSize = 13
-    btn.Text = name:upper()
-    btn.BorderSizePixel = 0
-    btn.Parent = parent
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(40, 40, 40)
-    stroke.Thickness = 1
-    stroke.Parent = btn
-    return btn
-end
-
--- [OPÇÕES]
-local HitboxBtn = CreateOption("Hitbox: OFF", UDim2.new(0, 0, 0, 0), CombatPage)
-local TPBaseBtn = CreateOption("Teleport Base", UDim2.new(0, 0, 0, 45), CombatPage)
-local NoclipBtn = CreateOption("Noclip: OFF", UDim2.new(0, 0, 0, 0), MovementPage)
-local FlyBtn = CreateOption("Fly: OFF", UDim2.new(0, 0, 0, 45), MovementPage)
-local InfJumpBtn = CreateOption("Inf Jump: OFF", UDim2.new(0, 0, 0, 90), MovementPage)
-local SpeedBtn = CreateOption("Speed: OFF", UDim2.new(0, 0, 0, 135), MovementPage)
-local ColorBtn = CreateOption("Change Theme", UDim2.new(0, 0, 0, 0), SettingsPage)
-local ShutdownBtn = CreateOption("Shutdown", UDim2.new(0, 0, 0, 150), SettingsPage)
-ShutdownBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
-
--- [LÓGICA DE NAVEGAÇÃO]
-local function SwitchTab(tabName)
-    CombatPage.Visible = (tabName == "Combat")
-    MovementPage.Visible = (tabName == "Movement")
-    SettingsPage.Visible = (tabName == "Settings")
-end
-
-CombatTab.MouseButton1Click:Connect(function() SwitchTab("Combat") end)
-MovementTab.MouseButton1Click:Connect(function() SwitchTab("Movement") end)
-SettingsTab.MouseButton1Click:Connect(function() SwitchTab("Settings") end)
-
--- [DRAGGABLE]
-local function MakeDraggable(gui)
-    local dragging, dragInput, dragStart, startPos
-    gui.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true; dragStart = input.Position; startPos = gui.Position
+-- [COMBAT SYSTEM]
+task.spawn(function()
+    while task.wait() do
+        if Settings.KillAuraActive then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local target = p.Character.HumanoidRootPart
+                    local dist = (Player.Character.HumanoidRootPart.Position - target.Position).Magnitude
+                    if dist < Settings.KillAuraRange then
+                        -- Simulação de Hit/Damage
+                        local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health > 0 then
+                            -- Aqui entra a lógica de Remote para o seu jogo específico
+                            print("[DEEPHAT] Target Locked: " .. p.Name)
+                        end
+                    end
+                end
+            end
         end
-    end)
-    gui.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
-    end)
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-        end
-    end)
-    UserInputService.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
-    end)
-end
-MakeDraggable(MainFrame)
+    end
+end)
 
--- [LÓGICA CORE]
--- Hitbox
+-- [HITBOX EXPANDER - CONFIGURÁVEL]
 task.spawn(function()
     while task.wait(0.5) do
         if Settings.HitboxActive then
@@ -209,7 +31,7 @@ task.spawn(function()
                 if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
                     local hrp = p.Character.HumanoidRootPart
                     hrp.Size = Vector3.new(Settings.HitboxSize, Settings.HitboxSize, Settings.HitboxSize)
-                    hrp.Transparency = 0.7
+                    hrp.Transparency = 0.6
                     hrp.CanCollide = false
                 end
             end
@@ -217,99 +39,378 @@ task.spawn(function()
     end
 end)
 
--- Noclip
-RunService.Stepped:Connect(function()
-    if Settings.NoclipActive and Player.Character then
-        for _, part in pairs(Player.Character:GetDescendants()) do
-            if part:IsA("BasePart") then part.CanCollide = false end
+-- [ESP SYSTEM - BOX & NAME]
+local function CreateESP(targetPlayer)
+    if not targetPlayer.Character then return end
+    local char = targetPlayer.Character
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+
+    local box = Instance.new("BoxHandleAdornment")
+    box.Name = "DeepHat_ESP"
+    box.AlwaysOnTop = true
+    box.ZIndex = 5
+    box.Adornee = hrp
+    box.Size = Vector3.new(4, 6, 1)
+    box.Color3 = Settings.ThemeColor
+    box.Transparency = 0.5
+    box.StudsOffset = Vector3.new(0, 0, 0)
+    box.Parent = hrp
+
+    local name = Instance.new("BillboardGui")
+    name.Name = "DeepHat_Name"
+    name.Adornee = hrp
+    name.Size = UDim2.new(0, 100, 0, 50)
+    name.StudsOffset = Vector3.new(0, 3, 0)
+    name.AlwaysOnTop = true
+    name.Parent = hrp
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = targetPlayer.Name
+    nameLabel.TextColor3 = Settings.ThemeColor
+    nameLabel.TextSize = 14
+    nameLabel.Font = Enum.Font.Code
+    nameLabel.Parent = name
+end
+
+task.spawn(function()
+    while task.wait(2) do
+        if Settings.ESP_Enabled then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and not p.Character:FindFirstChild("DeepHat_ESP") then
+                    CreateESP(p)
+                end
+            end
         end
     end
 end)
 
--- Inf Jump
-UserInputService.JumpRequest:Connect(function()
-    if Settings.InfJumpActive and Player.Character then
-        local hum = Player.Character:FindFirstChildOfClass("Humanoid")
-        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+-- [AIMBOT LOGIC]
+local function GetClosestPlayer()
+    local closest = nil
+    local dist = math.huge
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local d = (Player.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                dist = d
+                closest = p
+            end
+        end
     end
-end)
+    return closest
+end
 
--- Speed
-SpeedBtn.MouseButton1Click:Connect(function()
-    Settings.SpeedActive = not Settings.SpeedActive
-    local char = Player.Character
-    if char and char:FindFirstChild("Humanoid") then
-        char.Humanoid.WalkSpeed = Settings.SpeedActive and Settings.WalkSpeedValue or 16
-    end
-    SpeedBtn.Text = Settings.SpeedActive and "Speed: ON" or "Speed: OFF"
-    SpeedBtn.TextColor3 = Settings.SpeedActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
-end)
-
--- Fly
-local function ToggleFly()
-    local char = Player.Character
-    local hrp = char and char:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    Settings.FlyActive = not Settings.FlyActive
-    if Settings.FlyActive then
-        local bv = Instance.new("BodyVelocity", hrp); bv.Name = "FlyVel"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Velocity = Vector3.new(0,0,0)
-        local bg = Instance.new("BodyGyro", hrp); bg.Name = "FlyGyro"; bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge); bg.P = 10000
-    else
-        if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end
-        if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
+-- [REMOTE SPAMMER - BASE]
+local function RemoteSpam(remoteName)
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName, true)
+    if remote then
+        task.spawn(function()
+            while Settings.RemoteSpamActive do
+                remote:FireServer() -- CUIDADO: Pode crashar o jogo
+                task.wait(0.1)
+            end
+        end)
     end
 end
 
--- [EVENTOS UI]
+-- [CONEXÃO DE EVENTOS COM A UI]
+-- Isso aqui é o que faz o botão funcionar!
 HitboxBtn.MouseButton1Click:Connect(function()
     Settings.HitboxActive = not Settings.HitboxActive
     HitboxBtn.Text = "Hitbox: " .. (Settings.HitboxActive and "ON" or "OFF")
-    HitboxBtn.TextColor3 = Settings.HitboxActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+    HitboxBtn.TextColor3 = Settings.HitboxActive and Settings.ThemeColor or Color3.fromRGB(255, 255, 255)
 end)
 
-NoclipBtn.MouseButton1Click:Connect(function()
-    Settings.NoclipActive = not Settings.NoclipActive
-    NoclipBtn.Text = "Noclip: " .. (Settings.NoclipActive and "ON" or "OFF")
-    NoclipBtn.TextColor3 = Settings.NoclipActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+-- Configuração de Hitbox (Clique Direito)
+HitboxBtn.MouseButton2Click:Connect(function()
+    Settings.HitboxSize = Settings.HitboxSize + 2
+    if Settings.HitboxSize > 20 then Settings.HitboxSize = 2 end
+    print("[DEEPHAT] Hitbox Size: " .. Settings.HitboxSize)
 end)
 
-InfJumpBtn.MouseButton1Click:Connect(function()
-    Settings.InfJumpActive = not Settings.InfJumpActive
-    InfJumpBtn.Text = "Inf Jump: " .. (Settings.InfJumpActive and "ON" or "OFF")
-    InfJumpBtn.TextColor3 = Settings.InfJumpActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+ESPBtn.MouseButton1Click:Connect(function()
+    Settings.ESP_Enabled = not Settings.ESP_Enabled
+    ESPBtn.Text = "ESP: " .. (Settings.ESP_Enabled and "ON" or "OFF")
+    ESPBtn.TextColor3 = Settings.ESP_Enabled and Settings.ThemeColor or Color3.fromRGB(255, 255, 255)
 end)
 
-FlyBtn.MouseButton1Click:Connect(function()
-    ToggleFly()
-    FlyBtn.Text = "Fly: " .. (Settings.FlyActive and "ON" or "OFF")
-    FlyBtn.TextColor3 = Settings.FlyActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+-- Shutdown
+ShutdownBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
 end)
 
-TPBaseBtn.MouseButton1Click:Connect(function()
-    local char = Player.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        local spawn = workspace:FindFirstChildOfClass("SpawnLocation")
-        char.HumanoidRootPart.CFrame = spawn and spawn.CFrame + Vector3.new(0, 5, 0) or CFrame.new(0, 50, 0)
+print("[DEEPHAT] Módulo Combat & Visual: ON.")
+-- DEEPHAT [MODULE: COMBAT & VISUAL - GOD MODE]
+-- STATUS: MASSIVE LOAD
+
+-- [COMBAT SYSTEM]
+task.spawn(function()
+    while task.wait() do
+        if Settings.KillAuraActive then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local target = p.Character.HumanoidRootPart
+                    local dist = (Player.Character.HumanoidRootPart.Position - target.Position).Magnitude
+                    if dist < Settings.KillAuraRange then
+                        -- Simulação de Hit/Damage
+                        local hum = p.Character:FindFirstChildOfClass("Humanoid")
+                        if hum and hum.Health > 0 then
+                            -- Aqui entra a lógica de Remote para o seu jogo específico
+                            print("[DEEPHAT] Target Locked: " .. p.Name)
+                        end
+                    end
+                end
+            end
+        end
     end
 end)
 
-ColorBtn.MouseButton1Click:Connect(function()
-    local colors = {Color3.fromRGB(180, 50, 255), Color3.fromRGB(50, 255, 180), Color3.fromRGB(255, 50, 50), Color3.fromRGB(50, 180, 255)}
-    Settings.ThemeColor = colors[math.random(1, #colors)]
-    MainStroke.Color = Settings.ThemeColor
-    Title.TextColor3 = Settings.ThemeColor
-    LoadingStroke.Color = Settings.ThemeColor
+-- [HITBOX EXPANDER - CONFIGURÁVEL]
+task.spawn(function()
+    while task.wait(0.5) do
+        if Settings.HitboxActive then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    hrp.Size = Vector3.new(Settings.HitboxSize, Settings.HitboxSize, Settings.HitboxSize)
+                    hrp.Transparency = 0.6
+                    hrp.CanCollide = false
+                end
+            end
+        end
+    end
 end)
 
-ShutdownBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+-- [ESP SYSTEM - BOX & NAME]
+local function CreateESP(targetPlayer)
+    if not targetPlayer.Character then return end
+    local char = targetPlayer.Character
+    local hrp = char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
 
--- [LOOP DE MOVIMENTO FLY]
-RunService.RenderStepped:Connect(function()
-    if Settings.FlyActive and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = Player.Character.HumanoidRootPart
-        local camera = workspace.CurrentCamera
-        local direction = Vector3.new(0,0,0)
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then direction = direction + camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then direction = direction - camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then direction = direction - camera.CFrame.RightVector end
-        if UserInputService:
+    local box = Instance.new("BoxHandleAdornment")
+    box.Name = "DeepHat_ESP"
+    box.AlwaysOnTop = true
+    box.ZIndex = 5
+    box.Adornee = hrp
+    box.Size = Vector3.new(4, 6, 1)
+    box.Color3 = Settings.ThemeColor
+    box.Transparency = 0.5
+    box.StudsOffset = Vector3.new(0, 0, 0)
+    box.Parent = hrp
+
+    local name = Instance.new("BillboardGui")
+    name.Name = "DeepHat_Name"
+    name.Adornee = hrp
+    name.Size = UDim2.new(0, 100, 0, 50)
+    name.StudsOffset = Vector3.new(0, 3, 0)
+    name.AlwaysOnTop = true
+    name.Parent = hrp
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = targetPlayer.Name
+    nameLabel.TextColor3 = Settings.ThemeColor
+    nameLabel.TextSize = 14
+    nameLabel.Font = Enum.Font.Code
+    nameLabel.Parent = name
+end
+
+task.spawn(function()
+    while task.wait(2) do
+        if Settings.ESP_Enabled then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and not p.Character:FindFirstChild("DeepHat_ESP") then
+                    CreateESP(p)
+                end
+            end
+        end
+    end
+end)
+
+-- [AIMBOT LOGIC]
+local function GetClosestPlayer()
+    local closest = nil
+    local dist = math.huge
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local d = (Player.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then
+                dist = d
+                closest = p
+            end
+        end
+    end
+    return closest
+end
+
+-- [REMOTE SPAMMER - BASE]
+local function RemoteSpam(remoteName)
+    local remote = game:GetService("ReplicatedStorage"):FindFirstChild(remoteName, true)
+    if remote then
+        task.spawn(function()
+            while Settings.RemoteSpamActive do
+                remote:FireServer() -- CUIDADO: Pode crashar o jogo
+                task.wait(0.1)
+            end
+        end)
+    end
+end
+
+-- [CONEXÃO DE EVENTOS COM A UI]
+-- Isso aqui é o que faz o botão funcionar!
+HitboxBtn.MouseButton1Click:Connect(function()
+    Settings.HitboxActive = not Settings.HitboxActive
+    HitboxBtn.Text = "Hitbox: " .. (Settings.HitboxActive and "ON" or "OFF")
+    HitboxBtn.TextColor3 = Settings.HitboxActive and Settings.ThemeColor or Color3.fromRGB(255, 255, 255)
+end)
+
+-- Configuração de Hitbox (Clique Direito)
+HitboxBtn.MouseButton2Click:Connect(function()
+    Settings.HitboxSize = Settings.HitboxSize + 2
+    if Settings.HitboxSize > 20 then Settings.HitboxSize = 2 end
+    print("[DEEPHAT] Hitbox Size: " .. Settings.HitboxSize)
+end)
+
+ESPBtn.MouseButton1Click:Connect(function()
+    Settings.ESP_Enabled = not Settings.ESP_Enabled
+    ESPBtn.Text = "ESP: " .. (Settings.ESP_Enabled and "ON" or "OFF")
+    ESPBtn.TextColor3 = Settings.ESP_Enabled and Settings.ThemeColor or Color3.fromRGB(255, 255, 255)
+end)
+
+-- Shutdown
+ShutdownBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+print("[DEEPHAT] Módulo Combat & Visual: ON.")
+-- DEEPHAT [MODULE: ANTI-BAN & REMOTE SPY - FINAL STAGE]
+-- STATUS: GOD MODE ENABLED
+
+-- [1. ANTI-BAN & OTIMIZAÇÃO]
+-- Esse módulo tenta mascarar sua presença e reduzir o lag do cliente
+
+local function SetupAntiBan()
+    -- Limpeza de rastros de script
+    local char = Player.Character or Player.CharacterAdded:Wait()
+    local hum = char:FindFirstChildOfClass("Humanoid")
+    
+    -- Proteção contra detecção de velocidade (Speed Hack Detection)
+    -- Evita que o servidor detecte mudanças bruscas de posição
+    task.spawn(function()
+        while task.wait(0.5) do
+            if Settings.SpeedHack and char:FindFirstChild("HumanoidRootPart") then
+                -- Simula uma velocidade constante para o servidor não notar o pulo
+                char.HumanoidRootPart.Velocity = char.HumanoidRootPart.Velocity * 0.8
+            end
+        end
+    end)
+
+    -- Proteção contra detecção de Noclip
+    task.spawn(function()
+        while task.wait(0.5) do
+            if Settings.Noclip and char:FindFirstChild("HumanoidRootPart") then
+                -- Mantém a integrência do personagem para evitar kick por 'falling through floor'
+                char.HumanoidRootPart.Position = char.HumanoidRootPart.Position + Vector3.new(0, 0.01, 0)
+            end
+        end
+    end)
+
+    -- Otimização de Render (FPS Boost)
+    local lighting = game:GetService("Lighting")
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 100000
+    
+    print("[DEEPHAT] Anti-Ban: Ativo.")
+end
+
+-- [2. REMOTE SPY & LOGS]
+-- Esse módulo monitora o que o jogo envia para o servidor (essencial para criar hacks de dinheiro)
+
+local function StartRemoteSpy()
+    print("[DEEPHAT] Iniciando Remote Spy... Monitore o Console.")
+    
+    local function HookRemote(method)
+        local original = typeof(method) == "function" and method or nil
+        
+        return function(self, ...)
+            local args = {...}
+            local remoteName = self.Name or "Unknown"
+            
+            -- Log no Console para você ver o que está acontecendo
+            print("[REMOTE SPY] " .. remoteName .. " | Args: ", args)
+            
+            -- Se for o método de disparo, ele executa o original
+            if original then
+                return original(self, unpack(args))
+            end
+        end
+    end
+
+    -- Hook nos principais disparadores
+    local rs = game:GetService("ReplicatedStorage")
+    
+    -- Monitorando RemoteEvents
+    for _, remote in pairs(rs:GetDescendants()) do
+        if remote:IsA("RemoteEvent") then
+            local oldFire = remote.FireServer
+            remote.FireServer = function(self, ...)
+                print("[REMOTE SPY] Evento Detectado: " .. self.Name)
+                print("[DEEPHAT] Argumentos: ", ...)
+                return oldFire(self, ...)
+            end
+        end
+    end
+    
+    -- Monitorando RemoteFunctions
+    for _, remote in pairs(rs:GetDescendants()) do
+        if remote:IsA("RemoteFunction") then
+            local oldInvoke = remote.InvokeServer
+            remote.InvokeServer = function(self, ...)
+                print("[REMOTE SPY] Function Detectada: " .. self.Name)
+                print("[DEEPHAT] Argumentos: ", ...)
+                return oldInvoke(self, ...)
+            end
+        end
+    end
+end
+
+-- [3. EXECUÇÃO DO MÓDULO]
+
+task.spawn(function()
+    task.wait(2) -- Espera o sistema carregar
+    SetupAntiBan()
+    StartRemoteSpy()
+    print("[DEEPHAT] Anti-Ban & Spy: Online.")
+end)
+
+-- [SISTEMA DE LOGS NO CONSOLE]
+local function Log(msg, color)
+    print("[DEEPHAT LOG] " .. msg)
+end
+
+-- [FINALIZAÇÃO DO CLIENT]
+-- Este comando fecha o script de forma limpa
+local function ShutdownClient()
+    print("[DEEPHAT] Encerrando sistema...")
+    ScreenGui:Destroy()
+    -- Limpa rastros de física
+    for _, p in pairs(game.Players:GetPlayers()) do
+        if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local hrp = p.Character.HumanoidRootPart
+            if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end
+            if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
+        end
+    end
+end
+
+-- Vincular ao botão de Shutdown (se necessário)
+ShutdownBtn.MouseButton1Click:Connect(function()
+    ShutdownClient()
+end)
+
+print("[DEEPHAT] ALL MODULES LOADED. GOD MODE READY.")

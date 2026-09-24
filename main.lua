@@ -1,47 +1,188 @@
--- DeepHat x uProxyz Custom Framework [TECH EDITION]
--- Estética: Cyberpunk / Dark Purple / Neon
--- Features: Draggable UI, Fly Speed Control, Noclip, TP Base
+-- DeepHat x uProxyz Custom Framework [ULTIMATE PRO EDITION]
+-- Developer: DeepHat (Kindo)
+-- Estética: Minimalist Tech / Square / Cyberpunk
 
 local Player = game.Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 
--- Variáveis de Controle
-local NoclipActive = false
-local FlyActive = false
-local FlySpeed = 50
-local MaxFlySpeed = 150
-local IsLoaded = false
+-- [CONFIGURAÇÕES E ESTADO]
+local Settings = {
+    NoclipActive = false,
+    FlyActive = false,
+    HitboxActive = false,
+    HitboxSize = 10,
+    InfJumpActive = false,
+    SpeedActive = false,
+    WalkSpeedValue = 50,
+    ThemeColor = Color3.fromRGB(180, 50, 255),
+    DarkBg = Color3.fromRGB(10, 10, 10),
+    IsLoaded = false
+}
 
--- Cores de Tema Tecnológico
-local ThemeColor = Color3.fromRGB(170, 85, 255) -- Roxo Neon
-local DarkBg = Color3.fromRGB(15, 10, 20)      -- Azul/Preto muito escuro
-local AccentColor = Color3.fromRGB(45, 20, 70) -- Roxo profundo para botões
-local TextColor = Color3.fromRGB(230, 230, 255)
-
--- Elementos da Interface
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "uProxyz_Tech_UI"
+ScreenGui.Name = "DeepHat_Pro_UI"
 ScreenGui.Parent = game:GetService("CoreGui")
 ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
--- [FUNÇÃO: DESIGN & ANIMAÇÃO]
-local function ApplyTween(obj, properties, duration)
-    local tweenInfo = TweenInfo.new(duration or 0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local tween = TweenService:Create(obj, tweenInfo, properties)
-    tween:Play()
-    return tween
+-- [UTILITÁRIOS]
+local function ApplyTween(obj, props, duration)
+    local info = TweenInfo.new(duration or 0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    TweenService:Create(obj, info, props):Play()
 end
 
--- [FUNÇÃO: DRAGGABLE]
+-- [1. INTERFACE DE CARREGAMENTO]
+local LoadingFrame = Instance.new("Frame")
+LoadingFrame.Size = UDim2.new(0, 250, 0, 100)
+LoadingFrame.Position = UDim2.new(0.5, -125, 0.5, -50)
+LoadingFrame.BackgroundColor3 = Settings.DarkBg
+LoadingFrame.BorderSizePixel = 0
+LoadingFrame.Parent = ScreenGui
+
+local LoadingStroke = Instance.new("UIStroke")
+LoadingStroke.Color = Settings.ThemeColor
+LoadingStroke.Thickness = 2
+LoadingStroke.Parent = LoadingFrame
+
+local LoadingTitle = Instance.new("TextLabel")
+LoadingTitle.Size = UDim2.new(1, 0, 0, 40)
+LoadingTitle.Text = "INITIALIZING..."
+LoadingTitle.Font = Enum.Font.Code
+LoadingTitle.TextColor3 = Settings.ThemeColor
+LoadingTitle.TextSize = 16
+LoadingTitle.BackgroundTransparency = 1
+LoadingTitle.Parent = LoadingFrame
+
+local LoadingBarBg = Instance.new("Frame")
+LoadingBarBg.Size = UDim2.new(0.8, 0, 0, 5)
+LoadingBarBg.Position = UDim2.new(0.1, 0, 0.7, 0)
+LoadingBarBg.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+LoadingBarBg.BorderSizePixel = 0
+LoadingBarBg.Parent = LoadingFrame
+
+local LoadingBar = Instance.new("Frame")
+LoadingBar.Size = UDim2.new(0, 0, 1, 0)
+LoadingBar.BackgroundColor3 = Settings.ThemeColor
+LoadingBar.BorderSizePixel = 0
+LoadingBar.Parent = LoadingBarBg
+
+-- [2. INTERFACE PRINCIPAL]
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 300, 0, 380)
+MainFrame.Position = UDim2.new(0.5, -150, 0.5, -190)
+MainFrame.BackgroundColor3 = Settings.DarkBg
+MainFrame.Visible = false
+MainFrame.Parent = ScreenGui
+
+local MainStroke = Instance.new("UIStroke")
+MainStroke.Color = Settings.ThemeColor
+MainStroke.Thickness = 2
+MainStroke.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 35)
+Title.Text = "DEEPHAT // PRO"
+Title.Font = Enum.Font.Code
+Title.TextColor3 = Settings.ThemeColor
+Title.TextSize = 20
+Title.BackgroundTransparency = 1
+Title.Parent = MainFrame
+
+local TabContainer = Instance.new("Frame")
+TabContainer.Size = UDim2.new(0, 70, 0, 280)
+TabContainer.Position = UDim2.new(0, 5, 0, 45)
+TabContainer.BackgroundTransparency = 1
+TabContainer.Parent = MainFrame
+
+local ContentContainer = Instance.new("Frame")
+ContentContainer.Size = UDim2.new(0, 210, 0, 280)
+ContentContainer.Position = UDim2.new(0, 85, 0, 45)
+ContentContainer.BackgroundTransparency = 1
+ContentContainer.Parent = MainFrame
+
+local function CreateTabButton(name, pos)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.Position = pos
+    btn.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    btn.TextColor3 = Color3.fromRGB(150, 150, 150)
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 12
+    btn.Text = name:upper()
+    btn.BorderSizePixel = 0
+    btn.Parent = TabContainer
+    return btn
+end
+
+local CombatTab = CreateTabButton("Combat", UDim2.new(0, 0, 0, 0))
+local MovementTab = CreateTabButton("Move", UDim2.new(0, 0, 0, 40))
+local SettingsTab = CreateTabButton("Set", UDim2.new(0, 0, 0, 80))
+
+local CombatPage = Instance.new("Frame")
+CombatPage.Size = UDim2.new(1, 0, 1, 0)
+CombatPage.BackgroundTransparency = 1
+CombatPage.Visible = false
+CombatPage.Parent = ContentContainer
+
+local MovementPage = Instance.new("Frame")
+MovementPage.Size = UDim2.new(1, 0, 1, 0)
+MovementPage.BackgroundTransparency = 1
+MovementPage.Visible = false
+MovementPage.Parent = ContentContainer
+
+local SettingsPage = Instance.new("Frame")
+SettingsPage.Size = UDim2.new(1, 0, 1, 0)
+SettingsPage.BackgroundTransparency = 1
+SettingsPage.Visible = false
+SettingsPage.Parent = ContentContainer
+
+local function CreateOption(name, pos, parent)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 35)
+    btn.Position = pos
+    btn.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    btn.TextColor3 = Color3.fromRGB(200, 200, 200)
+    btn.Font = Enum.Font.Code
+    btn.TextSize = 13
+    btn.Text = name:upper()
+    btn.BorderSizePixel = 0
+    btn.Parent = parent
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(40, 40, 40)
+    stroke.Thickness = 1
+    stroke.Parent = btn
+    return btn
+end
+
+-- [OPÇÕES]
+local HitboxBtn = CreateOption("Hitbox: OFF", UDim2.new(0, 0, 0, 0), CombatPage)
+local TPBaseBtn = CreateOption("Teleport Base", UDim2.new(0, 0, 0, 45), CombatPage)
+local NoclipBtn = CreateOption("Noclip: OFF", UDim2.new(0, 0, 0, 0), MovementPage)
+local FlyBtn = CreateOption("Fly: OFF", UDim2.new(0, 0, 0, 45), MovementPage)
+local InfJumpBtn = CreateOption("Inf Jump: OFF", UDim2.new(0, 0, 0, 90), MovementPage)
+local SpeedBtn = CreateOption("Speed: OFF", UDim2.new(0, 0, 0, 135), MovementPage)
+local ColorBtn = CreateOption("Change Theme", UDim2.new(0, 0, 0, 0), SettingsPage)
+local ShutdownBtn = CreateOption("Shutdown", UDim2.new(0, 0, 0, 150), SettingsPage)
+ShutdownBtn.TextColor3 = Color3.fromRGB(255, 80, 80)
+
+-- [LÓGICA DE NAVEGAÇÃO]
+local function SwitchTab(tabName)
+    CombatPage.Visible = (tabName == "Combat")
+    MovementPage.Visible = (tabName == "Movement")
+    SettingsPage.Visible = (tabName == "Settings")
+end
+
+CombatTab.MouseButton1Click:Connect(function() SwitchTab("Combat") end)
+MovementTab.MouseButton1Click:Connect(function() SwitchTab("Movement") end)
+SettingsTab.MouseButton1Click:Connect(function() SwitchTab("Settings") end)
+
+-- [DRAGGABLE]
 local function MakeDraggable(gui)
     local dragging, dragInput, dragStart, startPos
     gui.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = gui.Position
+            dragging = true; dragStart = input.Position; startPos = gui.Position
         end
     end)
     gui.InputChanged:Connect(function(input)
@@ -57,201 +198,118 @@ local function MakeDraggable(gui)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then dragging = false end
     end)
 end
-
--- 1. TELA DE CARREGAMENTO (MODERNIZADA)
-local InjectBtn = Instance.new("TextButton")
-InjectBtn.Name = "InjectBtn"
-InjectBtn.Parent = ScreenGui
-InjectBtn.Size = UDim2.new(0, 180, 0, 50)
-InjectBtn.Position = UDim2.new(0.5, -90, 0.5, -25)
-InjectBtn.Text = "INITIALIZING..."
-InjectBtn.Font = Enum.Font.Code
-InjectBtn.TextSize = 20
-InjectBtn.BackgroundColor3 = DarkBg
-InjectBtn.TextColor3 = ThemeColor
-InjectBtn.BorderSizePixel = 0
-
--- Criando um contorno neon para o botão de injetar
-local InjectStroke = Instance.new("UIStroke")
-InjectStroke.Parent = InjectBtn
-InjectStroke.Color = ThemeColor
-InjectStroke.Thickness = 2
-InjectStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-
--- 2. MENU PRINCIPAL (ESTILO TECH)
-local MainFrame = Instance.new("Frame")
-MainFrame.Name = "MainFrame"
-MainFrame.Parent = ScreenGui
-MainFrame.BackgroundColor3 = DarkBg
-MainFrame.Size = UDim2.new(0, 220, 0, 300)
-MainFrame.Position = UDim2.new(0.5, -110, 0.5, -150)
-MainFrame.Visible = false
-MainFrame.BorderSizePixel = 0
-
-local MainStroke = Instance.new("UIStroke")
-MainStroke.Parent = MainFrame
-MainStroke.Color = ThemeColor
-MainStroke.Thickness = 1
-MainStroke.Transparency = 0.5
-
 MakeDraggable(MainFrame)
 
-local Title = Instance.new("TextLabel")
-Title.Parent = MainFrame
-Title.Text = "uPROXYZ // TECH"
-Title.Size = UDim2.new(1, 0, 0, 40)
-Title.TextColor3 = ThemeColor
-Title.BackgroundTransparency = 1
-Title.Font = Enum.Font.Code
-Title.TextSize = 22
-
--- [SISTEMA DE BOTÕES ESTILIZADOS]
-local function CreateTechButton(text, pos, color)
-    local btn = Instance.new("TextButton")
-    btn.Parent = MainFrame
-    btn.Position = pos
-    btn.Size = UDim2.new(0.85, 0, 0, 35)
-    btn.Text = text:upper()
-    btn.BackgroundColor3 = AccentColor
-    btn.TextColor3 = TextColor
-    btn.Font = Enum.Font.Code
-    btn.TextSize = 14
-    btn.BorderSizePixel = 0
-    
-    local btnStroke = Instance.new("UIStroke")
-    btnStroke.Parent = btn
-    btnStroke.Color = ThemeColor
-    btnStroke.Thickness = 1
-    btnStroke.Transparency = 0.7
-    
-    return btn
-end
-
-local NoclipBtn = CreateTechButton("Noclip: Off", UDim2.new(0.075, 0, 0.2, 0))
-local FlyBtn = CreateTechButton("Fly: Off", UDim2.new(0.075, 0, 0.35, 0))
-local TPBaseBtn = CreateTechButton("Teleport Base", UDim2.new(0.075, 0, 0.5, 0))
-
--- [CONTROLE DE VELOCIDADE - SLIDER SIMPLIFICADO]
-local SpeedLabel = Instance.new("TextLabel")
-SpeedLabel.Parent = MainFrame
-SpeedLabel.Text = "FLY SPEED: " .. math.floor(FlySpeed)
-SpeedLabel.Position = UDim2.new(0.075, 0, 0.65, 0)
-SpeedLabel.Size = UDim2.new(0.85, 0, 0, 20)
-SpeedLabel.TextColor3 = TextColor
-SpeedLabel.BackgroundTransparency = 1
-SpeedLabel.Font = Enum.Font.Code
-SpeedLabel.TextSize = 14
-
-local SpeedUpBtn = CreateTechButton("+", UDim2.new(0.075, 0, 0.75, 0))
-local SpeedDownBtn = CreateTechButton("-", UDim2.new(0.5, 0, 0.75, 0))
-SpeedUpBtn.Size = UDim2.new(0.35, 0, 0, 30)
-SpeedDownBtn.Size = UDim2.new(0.35, 0, 0, 30)
-
-local SelfDestructBtn = CreateTechButton("Shutdown", UDim2.new(0.075, 0, 0.88, 0), Color3.fromRGB(100, 0, 0))
-SelfDestructBtn.Size = UDim2.new(0.85, 0, 0, 25)
-
--- [LÓGICA DE FUNCIONAMENTO]
-
--- Injeção com Efeito Visual
-InjectBtn.MouseButton1Click:Connect(function()
-    InjectBtn.Text = "CONNECTING..."
-    task.wait(1.5)
-    ApplyTween(InjectBtn, {Size = UDim2.new(0, 0, 0, 0), BackgroundTransparency = 1}, 0.5)
-    task.wait(0.5)
-    InjectBtn.Visible = false
-    MainFrame.Visible = true
-    MainFrame.Size = UDim2.new(0, 0, 0, 0) -- Começa pequeno para animar
-    ApplyTween(MainFrame, {Size = UDim2.new(0, 220, 0, 300)}, 0.5)
-    IsLoaded = true
-end)
-
--- Controle de Velocidade
-SpeedUpBtn.MouseButton1Click:Connect(function()
-    FlySpeed = math.min(FlySpeed + 10, MaxFlySpeed)
-    SpeedLabel.Text = "FLY SPEED: " .. math.floor(FlySpeed)
-end)
-
-SpeedDownBtn.MouseButton1Click:Connect(function()
-    FlySpeed = math.max(FlySpeed - 10, 10)
-    SpeedLabel.Text = "FLY SPEED: " .. math.floor(FlySpeed)
+-- [LÓGICA CORE]
+-- Hitbox
+task.spawn(function()
+    while task.wait(0.5) do
+        if Settings.HitboxActive then
+            for _, p in pairs(game.Players:GetPlayers()) do
+                if p ~= Player and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    local hrp = p.Character.HumanoidRootPart
+                    hrp.Size = Vector3.new(Settings.HitboxSize, Settings.HitboxSize, Settings.HitboxSize)
+                    hrp.Transparency = 0.7
+                    hrp.CanCollide = false
+                end
+            end
+        end
+    end
 end)
 
 -- Noclip
-NoclipBtn.MouseButton1Click:Connect(function()
-    NoclipActive = not NoclipActive
-    NoclipBtn.Text = NoclipActive and "Noclip: ON" or "Noclip: Off"
-    NoclipBtn.TextColor3 = NoclipActive and ThemeColor or TextColor
-end)
-
 RunService.Stepped:Connect(function()
-    if NoclipActive and Player.Character then
+    if Settings.NoclipActive and Player.Character then
         for _, part in pairs(Player.Character:GetDescendants()) do
             if part:IsA("BasePart") then part.CanCollide = false end
         end
     end
 end)
 
--- Fly (Com Velocidade Dinâmica)
-FlyBtn.MouseButton1Click:Connect(function()
-    FlyActive = not FlyActive
-    FlyBtn.Text = FlyActive and "Fly: ON" or "Fly: OFF"
-    FlyBtn.TextColor3 = FlyActive and ThemeColor or TextColor
-    
-    local Character = Player.Character
-    if FlyActive and Character and Character:FindFirstChild("HumanoidRootPart") then
-        local BV = Instance.new("BodyVelocity")
-        BV.Name = "FlyVelocity"
-        BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-        BV.Velocity = Vector3.new(0, 0, 0)
-        BV.Parent = Character.HumanoidRootPart
-        
-        local BG = Instance.new("BodyGyro")
-        BG.Name = "FlyGyro"
-        BG.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-        BG.CFrame = Character.HumanoidRootPart.CFrame
-        BG.Parent = Character.HumanoidRootPart
+-- Inf Jump
+UserInputService.JumpRequest:Connect(function()
+    if Settings.InfJumpActive and Player.Character then
+        local hum = Player.Character:FindFirstChildOfClass("Humanoid")
+        if hum then hum:ChangeState(Enum.HumanoidStateType.Jumping) end
+    end
+end)
+
+-- Speed
+SpeedBtn.MouseButton1Click:Connect(function()
+    Settings.SpeedActive = not Settings.SpeedActive
+    local char = Player.Character
+    if char and char:FindFirstChild("Humanoid") then
+        char.Humanoid.WalkSpeed = Settings.SpeedActive and Settings.WalkSpeedValue or 16
+    end
+    SpeedBtn.Text = Settings.SpeedActive and "Speed: ON" or "Speed: OFF"
+    SpeedBtn.TextColor3 = Settings.SpeedActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+end)
+
+-- Fly
+local function ToggleFly()
+    local char = Player.Character
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    Settings.FlyActive = not Settings.FlyActive
+    if Settings.FlyActive then
+        local bv = Instance.new("BodyVelocity", hrp); bv.Name = "FlyVel"; bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge); bv.Velocity = Vector3.new(0,0,0)
+        local bg = Instance.new("BodyGyro", hrp); bg.Name = "FlyGyro"; bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge); bg.P = 10000
     else
-        if Character and Character:FindFirstChild("HumanoidRootPart") then
-            if Character.HumanoidRootPart:FindFirstChild("FlyVelocity") then Character.HumanoidRootPart.FlyVelocity:Destroy() end
-            if Character.HumanoidRootPart:FindFirstChild("FlyGyro") then Character.HumanoidRootPart.FlyGyro:Destroy() end
-        end
+        if hrp:FindFirstChild("FlyVel") then hrp.FlyVel:Destroy() end
+        if hrp:FindFirstChild("FlyGyro") then hrp.FlyGyro:Destroy() end
     end
+end
+
+-- [EVENTOS UI]
+HitboxBtn.MouseButton1Click:Connect(function()
+    Settings.HitboxActive = not Settings.HitboxActive
+    HitboxBtn.Text = "Hitbox: " .. (Settings.HitboxActive and "ON" or "OFF")
+    HitboxBtn.TextColor3 = Settings.HitboxActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
 end)
 
-RunService.RenderStepped:Connect(function()
-    if FlyActive and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
-        local Root = Player.Character.HumanoidRootPart
-        local Camera = workspace.CurrentCamera
-        local Direction = Vector3.new(0,0,0)
-        
-        if UserInputService:IsKeyDown(Enum.KeyCode.W) then Direction = Direction + Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.S) then Direction = Direction - Camera.CFrame.LookVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.A) then Direction = Direction - Camera.CFrame.RightVector end
-        if UserInputService:IsKeyDown(Enum.KeyCode.D) then Direction = Direction + Camera.CFrame.RightVector end
-        
-        if Root:FindFirstChild("FlyVelocity") then
-            Root.FlyVelocity.Velocity = Direction * FlySpeed
-        end
-        if Root:FindFirstChild("FlyGyro") then
-            Root.FlyGyro.CFrame = Camera.CFrame
-        end
-    end
+NoclipBtn.MouseButton1Click:Connect(function()
+    Settings.NoclipActive = not Settings.NoclipActive
+    NoclipBtn.Text = "Noclip: " .. (Settings.NoclipActive and "ON" or "OFF")
+    NoclipBtn.TextColor3 = Settings.NoclipActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
 end)
 
--- Teleport Base
+InfJumpBtn.MouseButton1Click:Connect(function()
+    Settings.InfJumpActive = not Settings.InfJumpActive
+    InfJumpBtn.Text = "Inf Jump: " .. (Settings.InfJumpActive and "ON" or "OFF")
+    InfJumpBtn.TextColor3 = Settings.InfJumpActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+end)
+
+FlyBtn.MouseButton1Click:Connect(function()
+    ToggleFly()
+    FlyBtn.Text = "Fly: " .. (Settings.FlyActive and "ON" or "OFF")
+    FlyBtn.TextColor3 = Settings.FlyActive and Settings.ThemeColor or Color3.fromRGB(200, 200, 200)
+end)
+
 TPBaseBtn.MouseButton1Click:Connect(function()
-    local Character = Player.Character
-    if Character and Character:FindFirstChild("HumanoidRootPart") then
-        local SpawnLoc = workspace:FindFirstChildOfClass("SpawnLocation")
-        if SpawnLoc then
-            Character.HumanoidRootPart.CFrame = SpawnLoc.CFrame + Vector3.new(0, 5, 0)
-        else
-            Character.HumanoidRootPart.CFrame = CFrame.new(0, 50, 0)
-        end
+    local char = Player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local spawn = workspace:FindFirstChildOfClass("SpawnLocation")
+        char.HumanoidRootPart.CFrame = spawn and spawn.CFrame + Vector3.new(0, 5, 0) or CFrame.new(0, 50, 0)
     end
 end)
 
--- Self Destruct
-SelfDestructBtn.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
+ColorBtn.MouseButton1Click:Connect(function()
+    local colors = {Color3.fromRGB(180, 50, 255), Color3.fromRGB(50, 255, 180), Color3.fromRGB(255, 50, 50), Color3.fromRGB(50, 180, 255)}
+    Settings.ThemeColor = colors[math.random(1, #colors)]
+    MainStroke.Color = Settings.ThemeColor
+    Title.TextColor3 = Settings.ThemeColor
+    LoadingStroke.Color = Settings.ThemeColor
 end)
+
+ShutdownBtn.MouseButton1Click:Connect(function() ScreenGui:Destroy() end)
+
+-- [LOOP DE MOVIMENTO FLY]
+RunService.RenderStepped:Connect(function()
+    if Settings.FlyActive and Player.Character and Player.Character:FindFirstChild("HumanoidRootPart") then
+        local hrp = Player.Character.HumanoidRootPart
+        local camera = workspace.CurrentCamera
+        local direction = Vector3.new(0,0,0)
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then direction = direction + camera.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then direction = direction - camera.CFrame.LookVector end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then direction = direction - camera.CFrame.RightVector end
+        if UserInputService:
